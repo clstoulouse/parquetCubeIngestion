@@ -12,8 +12,6 @@ This project contains the source code for the NetCDF to Parquet transformation, 
 It also contains the ressources to deploy the transformation and ingestion of NetCDF files to Parquet 
  in an HDFS storage as a kubernetes deployments. Included are the the source code for building the according docker images and helm charts.
 
-# Architecture
-
 # Building Parquet Cube project
 After cloning the project in your local directory, go inside the parent directory and compile the project :
 
