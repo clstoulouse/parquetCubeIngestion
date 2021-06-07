@@ -1,0 +1,21 @@
+{{- range $key, $volume := $.Values.volumes }}
+{{- if $volume.pvcreate }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $volume.name }}
+  labels:
+    {{- include "release.labels" $ | indent 4 }}
+    component: {{ $volume.name }}
+spec:
+  resources:
+    requests:
+      storage: {{ $volume.size }}
+  accessModes:
+  - ReadWriteMany
+  {{- with $volume.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}

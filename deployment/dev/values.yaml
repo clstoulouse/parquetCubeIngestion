@@ -1,0 +1,126 @@
+imagePullSecret:
+  name: docker-registry
+
+imagePullPolicy: Always
+
+securityContext:
+  enabled: true
+  userName: &username metocdev
+  groupName: metoc
+  runAsUser: &uid 11242
+  fsGroup: &gid 10646
+
+log:
+  root:
+    level: INFO
+  logstash:
+    enabled: true
+    level: INFO
+  stdout:
+    enabled: true
+    level: INFO
+
+dataBox:
+  image:
+    pullSecret:
+      name: docker-registry-docker-cls
+
+ftpMetoc:
+  image:
+    pullSecret:
+      name: docker-registry-si-indus
+  user:
+    name: metoc
+    password: metoc_ftp_password
+    uid: *uid
+    gid: *gid
+  advertisedHostOrIp: big-namenode3.vlandata.cls.fr
+  ports:
+    control: 10421
+    passiveRange:
+      min: 10422
+      max: 10424
+
+datasetsFolder: hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/datasets
+datasets:
+  "dataset-alti8-nrt-global-msla-uv":
+    relativeFolder: Altimetry_Sea_Water_Velocity/dataset-alti8-nrt-global-msla-uv
+    ingestionMode: local
+  "dataset-alti8-nrt-global-msla-h":
+    relativeFolder: Altimetry_Sea_Surface_Height_Restricted/dataset-alti8-nrt-global-msla-h
+    ingestionMode: local
+  "dataset-catsat-model-global-SA01-0-250m":
+    relativeFolder: Mercator_Ocean_Model_Global_Processed/dataset-catsat-model-global-SA01-0-250m
+    ingestionMode: local
+  "dataset-catsat-model-global-TM01":
+    relativeFolder: Mercator_Ocean_Model_Global_Processed/dataset-catsat-model-global-TM01
+    ingestionMode: local
+  "dataset-catsat-nrt-global-thermocline-hr":
+    relativeFolder: Mercator_Ocean_Model_Global_Processed/dataset-catsat-nrt-global-thermocline-hr
+    ingestionMode: local
+  "dataset-catsat-nrt-global-thermocline":
+    relativeFolder: Mercator_Ocean_Model_Global_Processed/dataset-catsat-nrt-global-thermocline
+    ingestionMode: local
+  "dataset-catsat-nrt-global-objective-analysis-chlorophyll":
+    relativeFolder: Ocean_Color_Global/dataset-catsat-nrt-global-objective-analysis-chlorophyll
+    ingestionMode: local
+  "dataset-catsat-nrt-global-standard-chlorophyll":
+    relativeFolder: Ocean_Color_Global-TDS/dataset-catsat-nrt-global-standard-chlorophyll
+    ingestionMode: local
+  "dataset-catsat-nrt-sst-microwave-ostia-glo-01deg":
+    relativeFolder: Sea_Surface_Temperature_Global_OSTIA/dataset-catsat-nrt-sst-microwave-ostia-glo-01deg
+    ingestionMode: local
+  "dataset-seapodym-micronekton-zooplancton-glo-weekly":
+    relativeFolder: Seapodym_Model_Global/dataset-seapodym-micronekton-zooplancton-glo-weekly
+    ingestionMode: local
+  "dataset-seapodym-yellowfin-biomass-distribution-glo-weekly":
+    relativeFolder: Seapodym_Model_Global/dataset-seapodym-yellowfin-biomass-distribution-glo-weekly
+    ingestionMode: local
+  "dataset-catsat-nrt-global-infrared-sst-hr":
+    relativeFolder: Sea_Surface_Temperature_Global-TDS/dataset-catsat-nrt-global-infrared-sst-hr
+    ingestionMode: local
+  "global-reanalysis-phy-001-031-grepv2-daily":
+    relativeFolder: other/global-reanalysis-phy-001-031-grepv2-daily
+    ingestionMode: local
+  "dataset-catsat-ocean-model-global-salinity-sa02":
+    relativeFolder: Mercator_Ocean_Model_Global_Processed/dataset-catsat-ocean-model-global-salinity-sa02
+    ingestionMode: local
+
+ingestion:
+  shuffleDatasets: false
+  rootSuccessFolder: hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/raw/success
+  removeSucceededSourceFiles: true
+  rootFailureFolder: hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/raw/failure
+  removeFailedSourceFiles: true
+  crawlingPeriod: "10 seconds"
+  default-rounding:
+    coordinatesPrecision: 5
+    roundingMode: RoundUp
+
+crawler:
+  replicaCount: 1
+
+ingestionTests:
+  outputFolder: "hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/tests"
+
+hadoop:
+  userName: *username
+  configuration:
+    "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider"
+    "fs.s3a.endpoint": "s3.cls.fr:9443"
+    "fs.s3a.connection.ssl.enabled": true
+    "fs.s3a.path.style.access": true
+    "fs.s3a.access.key": "AXN7U10PDVV6UTDPPXQX"
+    "fs.s3a.secret.key": "Iu2cio=U2NGMHJK5a9oDxEpkzjXPo+CnV7KawnrU"
+
+volumes:
+  nfsMetocVolume:
+    name: pvc-metoc-dev
+    pvcreate: true
+    size: 2Gi # Size of the volume
+    useSubPath: false # Indicate if a subpath is used
+    subPath: . # Important to keep because it is used in helm
+    storageClassName: standard-monosite
+    subFolders:
+      ncInput: nc-input
+      locks: locks

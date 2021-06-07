@@ -1,0 +1,20 @@
+{{- range $key, $volume := $.Values.volumesNfs }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $volume.name }}
+  labels:
+    {{- include "release.labels" $ | indent 4 }}
+    component: {{ $volume.name }}
+spec:
+  resources:
+    requests:
+      storage: {{ $volume.size }}
+  volumeName: {{ $volume.pvname }}
+  accessModes:
+  - ReadWriteMany
+  {{- with $volume.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+{{- end }}

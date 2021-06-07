@@ -1,0 +1,690 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cls.parquet-cube</groupId>
+    <artifactId>parquet-cube-parent</artifactId>
+    <name>parquet-cube-parent</name>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <description>Parent pom for the parquet-cube project</description>
+
+    <properties>
+        <!-- Common properties -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.version.java>1.8</project.version.java>
+        <project.version.scala>2.11.12</project.version.scala>
+        <scala.version>${project.version.scala}</scala.version> <!-- added to prevent warning during build -->
+        <netcdf.version>4.3.3.1-5.el7</netcdf.version>
+
+        <!-- Plugins versions -->
+        <plugin.compiler.version>3.6.2</plugin.compiler.version>
+        <plugin.helper.version>1.10</plugin.helper.version>
+        <plugin.scala.version>3.3.1</plugin.scala.version>
+        <plugin.jar.version>2.6</plugin.jar.version>
+        <plugin.docker.version>0.27.2</plugin.docker.version>
+        <plugin.surefire.version>2.22.1</plugin.surefire.version>
+        <plugin.failsafe.version>2.22.1</plugin.failsafe.version>
+        <plugin.scalatest.version>2.0.0</plugin.scalatest.version>
+        <plugin.git-commit-id.version>2.2.6</plugin.git-commit-id.version>
+
+        <!-- git properties -->
+        <git.properties.filename>git.properties</git.properties.filename>
+        <git.properties.directory>${project.build.outputDirectory}</git.properties.directory>
+        <git.properties.location>${git.properties.directory}/${git.properties.filename}</git.properties.location>
+
+        <!-- docker images -->
+        <ci.docker.registry>registry-s3.vlandata.cls.fr:5000</ci.docker.registry>
+        <ci.docker.prefix>${ci.docker.registry}/bigdata/bigdata-metoc/parquet-cube</ci.docker.prefix>
+        <docker.supporting-files.dir>files</docker.supporting-files.dir>
+
+<!--        <docker.http.proxy>http://proxy.qt.cls.fr:8080</docker.http.proxy>
+        <docker.https.proxy>http://proxy.qt.cls.fr:8080</docker.https.proxy>
+        <docker.buildArg.http_proxy>${docker.http.proxy}</docker.buildArg.http_proxy>
+        <docker.buildArg.https_proxy>${docker.https.proxy}</docker.buildArg.https_proxy>-->
+
+        <docker.user.name>metocdev</docker.user.name>
+        <docker.user.id>11242</docker.user.id>
+        <docker.group.name>metoc</docker.group.name>
+        <docker.group.id>10646</docker.group.id>
+        <docker.working.dir>/opt/bigdata</docker.working.dir>
+        <docker.base>${ci.docker.prefix}/base-bigdata-java:${docker.tag}</docker.base>
+        <docker.tag>${project.version}</docker.tag>
+
+        <!-- dependencies versions -->
+        <dependency.ucar.version>4.6.10</dependency.ucar.version>
+        <dependency.apache-commons-math3.version>3.4.1</dependency.apache-commons-math3.version>
+        <dependency.apache-commons-lang3.version>3.5</dependency.apache-commons-lang3.version>
+        <dependency.commons-io.version>2.6</dependency.commons-io.version>
+        <dependency.slf4j.version>1.7.25</dependency.slf4j.version>
+        <dependency.logback.version>1.2.3</dependency.logback.version>
+        <dependency.logstash-logback-encoder.version>5.2</dependency.logstash-logback-encoder.version>
+        <dependency.scalatest.version>3.0.5</dependency.scalatest.version>
+        <dependency.scalamock.version>3.6.0</dependency.scalamock.version>
+        <dependency.scalacheck.version>1.13.5</dependency.scalacheck.version>
+        <dependency.typesafe-config.version>1.3.0</dependency.typesafe-config.version>
+        <dependency.jackson.version>2.6.0</dependency.jackson.version>
+        <dependency.hadoop.version>${dependency.jackson.version}</dependency.hadoop.version>
+        <dependency.parquet.version>1.10.0</dependency.parquet.version>
+        <dependency.scala-logging.version>3.9.0</dependency.scala-logging.version>
+        <dependency.joda-time.version>2.10.1</dependency.joda-time.version>
+        <dependency.spray-json.version>1.3.5</dependency.spray-json.version>
+        <dependency.akka.version>2.5.22</dependency.akka.version>
+        <dependency.akka-http.version>10.1.8</dependency.akka-http.version>
+        <dependency.mist-cli.version>0.3.0</dependency.mist-cli.version>
+        <dependency.httpclient.version>4.2</dependency.httpclient.version>
+        <dependency.scopt.version>3.7.1</dependency.scopt.version>
+        <dependency.hadoop-aws.version>2.7.1</dependency.hadoop-aws.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>ucar-repo</id>
+            <url>https://repo.osgeo.org/repository/release/</url>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${project.version.scala}</version>
+            </dependency>
+
+            <!-- bigdata core -->
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>bigdata-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>bigdata-netcdf-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- bigdata utils -->
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>bigdata-common-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>bigdata-test-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- parquet cube-->
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>parquet-cube-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>parquet-cube-ingestion</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>parquet-cube-parquet</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>parquet-cube-index</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cls.parquet-cube</groupId>
+                <artifactId>parquet-cube-metadata</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- NetCDF -->
+            <dependency>
+                <groupId>edu.ucar</groupId>
+                <artifactId>netcdfAll</artifactId>
+                <version>${dependency.ucar.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-jdk14</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- commons -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>${dependency.apache-commons-math3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${dependency.apache-commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${dependency.commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.spray</groupId>
+                <artifactId>spray-json_2.11</artifactId>
+                <version>${dependency.spray-json.version}</version>
+            </dependency>
+
+            <!-- logging -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${dependency.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
+                <version>${dependency.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${dependency.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jul-to-slf4j</artifactId>
+                <version>${dependency.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${dependency.logback.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${dependency.logstash-logback-encoder.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.scala-logging</groupId>
+                <artifactId>scala-logging_2.11</artifactId>
+                <version>${dependency.scala-logging.version}</version>
+            </dependency>
+
+            <!-- configuration -->
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>${dependency.typesafe-config.version}</version>
+            </dependency>
+
+            <!-- scopt -->
+            <dependency>
+                <groupId>com.github.scopt</groupId>
+                <artifactId>scopt_2.11</artifactId>
+                <version>${dependency.scopt.version}</version>
+            </dependency>
+
+            <!-- Jackson -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${dependency.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${dependency.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-scala_2.11</artifactId>
+                <version>${dependency.jackson.version}</version>
+            </dependency>
+
+            <!-- parquet -->
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-avro</artifactId>
+                <version>${dependency.parquet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-format</artifactId>
+                <version>${dependency.hadoop.version}</version>
+            </dependency>
+
+            <!-- hadoop -->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>${dependency.hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>${dependency.hadoop.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-aws</artifactId>
+                <version>${dependency.hadoop-aws.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>joda-time</artifactId>
+                        <groupId>joda-time</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <artifactId>joda-time</artifactId>
+                <groupId>joda-time</groupId>
+                <version>${dependency.joda-time.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${dependency.httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${dependency.httpclient.version}</version>
+            </dependency>
+
+            <!-- Test dependencies -->
+            <dependency>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest_2.11</artifactId>
+                <version>${dependency.scalatest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.scalamock</groupId>
+                <artifactId>scalamock-core_2.11</artifactId>
+                <version>${dependency.scalamock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.scalamock</groupId>
+                <artifactId>scalamock-scalatest-support_2.11</artifactId>
+                <version>${dependency.scalamock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.scalacheck</groupId>
+                <artifactId>scalacheck_2.11</artifactId>
+                <version>${dependency.scalacheck.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-testkit_2.11</artifactId>
+                <version>${dependency.akka.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <!-- docker base and utils images -->
+        <module>../misc/docker</module>
+
+        <!-- bigdata-utils modules -->
+        <module>../bigdata-utils/bigdata-common-utils</module>
+        <module>../bigdata-utils/bigdata-test-utils</module>
+
+
+        <!-- bigdata-core modules -->
+        <module>../bigdata-core/bigdata-core</module>
+        <module>../bigdata-core/bigdata-netcdf-core</module>
+
+        <!-- core modules -->
+        <module>../core/parquet-cube-common</module>
+        <module>../core/parquet-cube-ingestion</module>
+        <module>../core/parquet-cube-parquet</module>
+        <module>../core/parquet-cube-index</module>
+        <module>../core/parquet-cube-metadata</module>
+
+
+
+        <!-- daemon modules -->
+        <module>../daemon/parquet-cube-crawler</module>
+
+        <!-- helm packages -->
+        <module>../misc/helm</module>
+
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>branchBuild</id>
+            <properties>
+                <docker.tag>${project.version}-${git.branch.sanitized}</docker.tag>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>scalaBuild</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/scala</exists>
+                </file>
+            </activation>
+            <dependencies>
+                <!-- scala standard library -->
+                <dependency>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </dependency>
+
+                <!-- scala test library -->
+                <dependency>
+                    <groupId>org.scalatest</groupId>
+                    <artifactId>scalatest_2.11</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>net.alchim31.maven</groupId>
+                        <artifactId>scala-maven-plugin</artifactId>
+                        <version>${plugin.scala.version}</version>
+                        <executions>
+                            <!-- Run scala compiler in the process-resources phase, so that dependencies on
+                                 scala classes can be resolved later in the (Java) compile phase -->
+                            <execution>
+                                <id>scala-compile-first</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+
+                            <!-- Run scala compiler in the process-test-resources phase, so that dependencies on
+                                 scala classes can be resolved later in the (Java) test-compile phase -->
+                            <execution>
+                                <id>scala-test-compile</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <goals>
+                                    <goal>compile</goal>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <configuration>
+                                    <scalaVersion>${project.version.scala}</scalaVersion>
+                                    <args>
+                                        <arg>-dependencyfile</arg>
+                                        <arg>${project.build.directory}/.scala_dependencies</arg>
+                                    </args>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>${plugin.helper.version}</version>
+                        <executions>
+                            <execution>
+                                <id>add-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/main/scala</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>add-test-source</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>add-test-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/test/scala</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.scalatest</groupId>
+                        <artifactId>scalatest-maven-plugin</artifactId>
+                        <version>${plugin.scalatest.version}</version>
+                        <configuration>
+                            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                            <junitxml>.</junitxml>
+                            <filereports>WDF TestSuite.txt</filereports>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>test</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>dockerBuild</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/docker/Dockerfile</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>generateTestJar</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/test</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <version>${plugin.jar.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>test-jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <!-- Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${plugin.compiler.version}</version>
+                <configuration>
+                    <source>${project.version.java}</source>
+                    <target>${project.version.java}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>${plugin.git-commit-id.version}</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <generateGitPropertiesFilename>${git.properties.location}</generateGitPropertiesFilename>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <runOnlyOnce>false</runOnlyOnce>
+                    <skipPoms>false</skipPoms>
+                    <dateFormat>yyyyMMdd-HHmmss</dateFormat>
+                    <replacementProperties>
+                        <replacementProperty>
+                            <property>git.branch</property>
+                            <propertyOutputSuffix>sanitized</propertyOutputSuffix>
+                            <token>^([^\/]*)\/([^\/]*)$</token>
+                            <value>$1-$2</value>
+                            <regex>true</regex>
+                            <transformationRules>
+                                <transformationRule>
+                                    <apply>BEFORE</apply>
+                                    <action>UPPER_CASE</action>
+                                </transformationRule>
+                                <transformationRule>
+                                    <apply>AFTER</apply>
+                                    <action>LOWER_CASE</action>
+                                </transformationRule>
+                            </transformationRules>
+                        </replacementProperty>
+                    </replacementProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${plugin.docker.version}</version>
+                    <configuration>
+                        <pushRegistry>${ci.docker.prefix}</pushRegistry> <!-- repository to push the images to -->
+                        <images>
+                            <image>
+                                <name>${ci.docker.prefix}/${project.artifactId}</name> <!-- full docker image name to build -->
+                                <alias>${project.artifactId}</alias>
+                                <build>
+                                    <tags> <!-- tags to apply on built docker images -->
+                                        <tag>latest</tag>
+                                        <tag>${docker.tag}</tag>
+                                    </tags>
+                                    <dockerFileDir> <!-- location where Dockerfile and supporting files can be found -->
+                                        ${project.basedir}/src/main/docker
+                                    </dockerFileDir>
+                                    <assembly>
+                                        <name>${docker.supporting-files.dir}</name>
+                                        <descriptor>${project.basedir}/src/main/docker/assembly.xml</descriptor>
+                                    </assembly>
+                                </build>
+                            </image>
+                        </images>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${plugin.surefire.version}</version>
+                    <configuration>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${plugin.failsafe.version}</version>
+                    <configuration>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+</project>

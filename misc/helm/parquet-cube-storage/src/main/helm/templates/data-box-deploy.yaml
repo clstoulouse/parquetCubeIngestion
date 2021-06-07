@@ -1,0 +1,41 @@
+{{- if .Values.dataBox.enabled }}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "release.id" . }}-data-box
+  labels:
+    {{- include "release.labels" . | indent 4 }}
+    component: data-box
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "release.labels" . | indent 8 }}
+        component: data-box
+    spec:
+      {{- if .Values.dataBox.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.dataBox.image.pullSecret.name }}
+      {{- else if .Values.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecret.name }}
+      {{- end}}
+      containers:
+        - name: data-box
+          imagePullPolicy: {{ .Values.imagePullPolicy | default .Values.dataBox.image.pullPolicy }}
+          image: "{{ .Values.dataBox.image.repository }}:{{ .Values.dataBox.image.tag }}"
+          command: ["sleep"]
+          args:
+            - infinity
+          volumeMounts:
+            - mountPath: /data
+              name: data-volume
+          resources:
+{{ toYaml .Values.dataBox.resources | indent 12 }}
+{{- include "node.selector" .Values.dataBox | indent 6 }}
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: {{ .Values.volumes.nfsMetocVolume.name }}
+{{- end }}

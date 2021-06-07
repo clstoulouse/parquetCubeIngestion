@@ -1,0 +1,151 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cls.parquet-cube</groupId>
+        <artifactId>parquet-cube-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../parquet-cube-parent</relativePath>
+    </parent>
+
+    <artifactId>parquet-cube-helm-packages</artifactId>
+    <packaging>pom</packaging>
+    <description>Parent pom for the parquet-cube helm packages</description>
+
+    <properties>
+        <!-- helm properties -->
+        <helm.chart.version>${project.version}</helm.chart.version>
+        <helm.assembly.descriptor>${project.parent.relativePath}/helm-assembly-descriptor.xml</helm.assembly.descriptor>
+        <helm.chart.finalName>${project.artifactId}-${helm.chart.version}</helm.chart.finalName>
+        <helm.chart.filename>${helm.chart.finalName}.tgz</helm.chart.filename>
+        <helm.chart.local.dir>${project.build.directory}</helm.chart.local.dir>
+        <helm.chart.local.path>${helm.chart.local.dir}/${helm.chart.filename}</helm.chart.local.path>
+        <helm.chart.remote.repository>http://mvnrepo.cls.fr:8081</helm.chart.remote.repository>
+        <helm.chart.remote.dir>nexus/repository/packages-to-deploy/parquet-cube/helm/${helm.chart.version}</helm.chart.remote.dir>
+        <helm.chart.remote.url>${helm.chart.remote.repository}/${helm.chart.remote.dir}/${helm.chart.filename}</helm.chart.remote.url>
+
+        <!-- plugins versions -->
+        <plugin.maven-assembly.version>3.1.0</plugin.maven-assembly.version>
+        <plugin.wagon-maven.version>2.0.0</plugin.wagon-maven.version>
+        <plugin.maven-antrun.version>1.3</plugin.maven-antrun.version>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>helm-repository</id>
+            <url>http://mvnrepo.cls.fr:8081/nexus/repository/packages-to-deploy/parquet-cube/helm/</url>
+        </repository>
+    </distributionManagement>
+
+    <modules>
+        <!-- helm packages -->
+        <module>parquet-cube-storage</module>
+        <module>parquet-cube-ingestion-chart</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>branchBuild</id>
+            <properties>
+                <helm.chart.version>${project.version}+${git.branch.sanitized}</helm.chart.version>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>helmPackageBuild</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/helm/Chart.yaml</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>wagon-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${plugin.maven-assembly.version}</version>
+                    <executions>
+                        <execution>
+                            <id>make-helm-chart</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                            <configuration>
+                                <descriptors>
+                                    <descriptor>${helm.assembly.descriptor}</descriptor>
+                                </descriptors>
+                                <finalName>${helm.chart.finalName}</finalName>
+                                <appendAssemblyId>false</appendAssemblyId>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>wagon-maven-plugin</artifactId>
+                    <version>${plugin.wagon-maven.version}</version>
+                    <executions>
+                        <execution>
+                            <id>upload-helm-chart</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>upload</goal>
+                            </goals>
+                            <configuration>
+                                <fromDir>${helm.chart.local.dir}</fromDir>
+                                <includes>${helm.chart.filename}</includes>
+                                <toDir>${helm.chart.remote.dir}</toDir>
+                                <url>${helm.chart.remote.repository}</url>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${plugin.maven-antrun.version}</version>
+                <executions>
+                    <execution>
+                        <id>write-helm-package-name-file</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo file="${project.build.directory}/build.version" message="${helm.chart.version}"/>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

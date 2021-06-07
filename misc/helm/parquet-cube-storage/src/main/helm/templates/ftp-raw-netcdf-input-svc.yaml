@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "release.id" . }}-metoc-ftp-service
+  labels:
+    {{- include "release.labels" . | indent 4 }}
+    component: metoc-ftp-service
+spec:
+  ports:
+  - name: ftp-control
+    port: {{ .Values.ftpMetoc.ports.control }}
+    protocol: TCP
+    targetPort: {{ .Values.ftpMetoc.ports.control }}
+  {{- range $i, $e := untilStep (int .Values.ftpMetoc.ports.passiveRange.min) (int (add .Values.ftpMetoc.ports.passiveRange.max 1)) 1 }}
+  - name: ftp-passive-{{ $i }}
+    port: {{ $e }}
+    protocol: TCP
+    targetPort: {{ $e }}
+  {{- end }}
+  selector:
+    {{- include "app.labels" . | indent 4}}
+    component: metoc-ftp
+  sessionAffinity: {{ .Values.ftpMetoc.service.sessionAffinity }}
+  type: {{ .Values.ftpMetoc.service.type }}

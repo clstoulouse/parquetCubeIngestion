@@ -1,0 +1,57 @@
+# vim: softtabstop=2 shiftwidth=2 expandtab ft=yaml
+{{- if .Values.volumes.nfsMetocVolume.useSubPath }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "release.id" . }}-metoc-ftp-create-folders
+  labels:
+    {{- include "release.labels" . | indent 4 }}
+    component: metoc-ftp-create-folders
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 1
+  parallelism: 1
+  completions: 1
+  template: 
+    metadata: 
+      labels:
+        {{- include "app.labels" . | indent 8}}
+        component: metoc-ftp-create-folders
+    spec:
+      {{- include "security.context" . | indent 6 }}
+      {{- if .Values.hooks.createFolders.image.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.hooks.createFolders.image.pullSecret.name }}
+      {{- else if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret.name }}
+      {{- end}}
+      containers:
+      - name: metoc-ftp-create-folders
+        image: "{{ .Values.hooks.createFolders.image.repository }}:{{ .Values.hooks.createFolders.image.tag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy | default .Values.hooks.createFolders.image.pullPolicy }}
+        env:
+        {{- include "security.context.env" . | indent 8 }}
+        {{- include "hadoop.env" . | indent 8 }}
+        - name: "ADDITIONAL_HADOOP_CONF"
+          value: "{{- range $name, $value := .Values.hadoop.configuration -}}-D{{ $name }}={{ $value }} {{ end -}}"
+        args:
+        - "bash"
+        - "hdfs"
+        - "dfs"
+        - "-mkdir"
+        - "-p"
+        - "file:///data/{{ .Values.volumes.nfsMetocVolume.subPath }}"
+        volumeMounts:
+        - mountPath: /data
+          name: data-volume
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.volumes.nfsMetocVolume.name }}
+      restartPolicy: Never
+{{- end }}

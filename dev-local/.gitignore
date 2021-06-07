@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+lock/
+nc-input/**
+nc-output/**
+nc-raw/**
+crawler-tests/**
+tracks/output/**
+minio/data/**
+!**/.gitkeep

@@ -1,0 +1,9 @@
+========================================================
+Deployed chart:
+ chart name:    {{ .Chart.Name }}
+ chart version: {{ .Chart.Version }}
+ release name:  {{ .Release.Name }}
+ namespace:     {{ .Release.Namespace }}
+ git.properties:
+{{ .Files.Get "${git.properties.filename}" | indent 3 }}
+========================================================

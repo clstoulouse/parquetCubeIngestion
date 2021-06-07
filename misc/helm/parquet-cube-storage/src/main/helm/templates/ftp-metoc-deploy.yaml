@@ -1,0 +1,63 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "release.id" . }}-metoc-ftp
+  labels:
+    {{- include "release.labels" . | indent 4 }}
+    component: metoc-ftp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "app.labels" . | indent 8 }}
+        component: metoc-ftp
+    spec:
+      {{- if .Values.ftpMetoc.image.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.ftpMetoc.image.pullSecret.name }}
+      {{-  else if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret.name }}
+      {{- end}}
+      containers:
+      - name: ftp-metoc
+        image: "{{ .Values.ftpMetoc.image.repository }}:{{ .Values.ftpMetoc.image.tag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy | default .Values.ftpMetoc.image.pullPolicy }}
+        command:
+        - /usr/local/sbin/start.sh
+        volumeMounts:
+        - mountPath: /ftp
+          name: data-volume
+          subPath: {{ .Values.volumes.nfsMetocVolume.subPath }}
+        env:
+        - name: IDENT
+          value: {{ .Values.ftpMetoc.ident | quote }}
+        - name: USERNAME
+          value: {{ .Values.ftpMetoc.user.name | quote }}
+        - name: PASSWORD
+          value: {{ .Values.ftpMetoc.user.password | quote }}
+        - name: USER_UID
+          value: {{ .Values.ftpMetoc.user.uid | quote }}
+        - name: USER_GID
+          value: {{ .Values.ftpMetoc.user.gid | quote }}
+        - name: PORT
+          value: {{ .Values.ftpMetoc.ports.control | quote }}
+        - name: PASSIVE_PORT_RANGE
+          value: "{{ .Values.ftpMetoc.ports.passiveRange.min }} {{ .Values.ftpMetoc.ports.passiveRange.max }}"
+        - name: PUBLIC_IP_OR_DNS
+          value: {{ .Values.ftpMetoc.advertisedHostOrIp | quote }}
+        ports:
+        - containerPort: {{ .Values.ftpMetoc.ports.control }}
+          protocol: TCP
+        {{- range $i, $e := untilStep (int .Values.ftpMetoc.ports.passiveRange.min) (int (add .Values.ftpMetoc.ports.passiveRange.max 1)) 1 }}
+        - containerPort: {{ $e }}
+          protocol: TCP
+        {{- end }}
+        resources:
+{{ toYaml .Values.ftpMetoc.resources | indent 10 }}
+      {{- include "node.selector" .Values.ftpMetoc | indent 6 }}
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.volumes.nfsMetocVolume.name }}

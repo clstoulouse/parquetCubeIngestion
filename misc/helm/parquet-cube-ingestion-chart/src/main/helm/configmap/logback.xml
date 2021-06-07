@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    {{- if .Values.log.stdout.enabled }}
+    <!-- console log forwarding -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>{{ .Values.log.stdout.level }}</level>
+        </filter>
+        <encoder>
+            <pattern>%d{dd-MM-yyyy'T'HH:mm:ss.SSSZ} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    {{- end }}
+
+    {{- if .Values.log.logstash.enabled }}
+    <!-- logstash log forwarding -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashSocketAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>{{ .Values.log.logstash.level }}</level>
+        </filter>
+        <host>{{ .Values.log.logstash.host }}</host>
+        <port>{{ .Values.log.logstash.port }}</port>
+        <customFields>{"dockername":"${DockerName}","namespace":"{{ .Release.Namespace }}","helm-app":"{{ template "app.name" . }}","helm-chart":"{{ template "chart.fullname" . }}","helm-release":"{{ .Release.Name }}"}</customFields>
+        <includeCallerData>true</includeCallerData>
+    </appender>
+    {{- end }}
+
+    {{- range $packageName, $logLevel := .Values.log.loggers }}
+    <logger name="{{ $packageName }}" level="{{ $logLevel }}"/>
+    {{- end }}
+
+    <root level="{{ .Values.log.root.level }}">
+        {{- if .Values.log.logstash.enabled }}
+        <appender-ref ref="LOGSTASH"/>
+        {{- end }}
+        {{- if .Values.log.stdout.enabled }}
+        <appender-ref ref="STDOUT"/>
+        {{- end }}
+    </root>
+</configuration>

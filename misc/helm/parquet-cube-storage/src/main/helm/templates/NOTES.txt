@@ -1,0 +1,48 @@
+{{- $ftpServiceFullName := printf "%s-metoc-ftp-service" (include "release.id" .) -}}
+========================================================
+Deployed chart:
+ chart name:    {{ .Chart.Name }}
+ chart version: {{ .Chart.Version }}
+ release name:  {{ .Release.Name }}
+ namespace:     {{ .Release.Namespace }}
+ git.properties:
+{{ .Files.Get "${git.properties.filename}" | indent 3 }}
+========================================================
+
+
+## Adding a load balancer for the FTP server
+
+You should create a Rancher L4 load balancer for it if you want to access the ftp server from outside the cluster.
+
+Here is the procedure:
+
++ Open rancher UI in a browser and log in with your credentials:
+  http://big-namenode1.vlandata.cls.fr:9080/
++ Navigate in the UI to `Kubernetes (in the top menu) | Infrastructure Stacks | kubernetes-ingress-lbs | Add Service (drop down list) | Add Load Balancer`
++ Fill in the from as following:
+  + `Scale`: `Always run one instance of this container on every host`
+  + `Name`: Choose a significant name for the load balancer (example: `{{ .Release.Namespace }}-ftp`)
+  + Add a `Service Rule` for the control port, with the following values:
+    + `Access`: `Public`
+    + `Protocol`: `TCP`
+    + `Request Host`: `n/a`
+    + `Port`: {{ .Values.ftpMetoc.ports.control }}
+    + `Path`: `n/a`
+    + `Target`: `{{ $ftpServiceFullName }}`
+    + `Port`: {{ .Values.ftpMetoc.ports.control }}
+{{- range $i, $e := untilStep (int .Values.ftpMetoc.ports.passiveRange.min) (int (add .Values.ftpMetoc.ports.passiveRange.max 1)) 1 }}
+  + Add a `Service Rule` for the control port, with the following values:
+    + `Access`: `Public`
+    + `Protocol`: `TCP`
+    + `Request Host`: `n/a`
+    + `Port`: {{ $e }}
+    + `Path`: `n/a`
+    + `Target`: `{{ $ftpServiceFullName }}`
+    + `Port`: {{ $e }}
+{{- end }}
+  + Validate the form and wait for the load balancer to have the state `Active`
+
+## FTP Access Url from the outside
+
+The metoc ftp server must be accessible under:
+ftp://{{ .Values.ftpMetoc.user.name }}:{{ .Values.ftpMetoc.user.password }}@{{ .Values.ftpMetoc.advertisedHostOrIp }}:{{ .Values.ftpMetoc.ports.control }}/

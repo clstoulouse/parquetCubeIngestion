@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "release.id" . }}-ingestion-crawler
+  labels:
+    {{- include "release.labels" . | indent 4 }}
+    component: ingestion-crawler
+spec:
+  replicas: {{ .Values.crawler.replicaCount }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.labels" . | indent 8 }}
+        component: ingestion-crawler
+    spec:
+      {{- include "security.context" . | indent 6 }}
+      {{- if .Values.crawler.image.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.crawler.image.pullSecret.name }}
+      {{-  else if .Values.imagePullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret.name }}
+      {{- end }}
+      containers:
+      - name: ingestion-crawler
+        image: "{{ .Values.crawler.image.repository }}:{{ .Values.crawler.image.tag }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy | default .Values.crawler.image.pullPolicy }}
+        volumeMounts:
+        - mountPath: ${docker.working.dir}/conf
+          name: config
+        - mountPath: /nc-input
+          name: nfs-metoc-volume
+          subPath: {{ .Values.volumes.nfsMetocVolume.subPath }}/{{ .Values.volumes.nfsMetocVolume.subFolders.ncInput }}
+        - mountPath: /lock
+          name: nfs-metoc-volume
+          subPath: {{ .Values.volumes.nfsMetocVolume.subPath }}/{{ .Values.volumes.nfsMetocVolume.subFolders.locks }}
+        env:
+        {{- include "security.context.env" . | indent 8 }}
+        {{- include "hadoop.env" . | indent 8 }}
+        - name: DOCKER_NAME
+          value: ingestion-crawler
+        resources:
+{{ toYaml .Values.crawler.resources | indent 10 }}
+      {{- include "node.selector" .Values.crawler | indent 6 }}
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "release.id" . }}-ingestion-configmap
+      - name: nfs-metoc-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.volumes.nfsMetocVolume.name }}

@@ -1,0 +1,25 @@
+{{- range $key, $volume := .Values.volumesNfs }}
+{{- if $volume.pvcreate }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $volume.pvname }}
+  labels:
+    {{- include "release.labels" $ | indent 4 }}
+    component: {{ $volume.pvname }}
+spec:
+  capacity:
+    storage: {{ $volume.size }}
+  accessModes:
+  - ReadWriteMany
+  mountOptions:
+  - sync
+  nfs:
+    server: {{ $volume.nfsServer }}
+    path: {{ $volume.path }}
+  {{- with $volume.storageClassName }}
+  storageClassName: {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}

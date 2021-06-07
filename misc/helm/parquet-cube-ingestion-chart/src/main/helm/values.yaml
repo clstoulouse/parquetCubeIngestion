@@ -1,0 +1,105 @@
+# Default values for parquet-cube-ingestion.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# use this key to define a docker pull secret for all pods deployed in this chart
+# imagePullSecret:
+  # name: docker-registry
+
+# use this key to define an image pull policy for all pods deployed in this chart
+# imagePullPolicy: IfNotPresent
+
+# Use this key to define a security context for pods created by this helm chart
+securityContext:
+  enabled: false
+  runAsUser: ${docker.user.id}
+  fsGroup: ${docker.group.id}
+  #userName: ${docker.user.name}
+  #groupName: ${docker.group.name}
+
+hooks:
+  createFolders:
+    image:
+      repository: ${ci.docker.prefix}/hadoop-tools
+      tag: ${docker.tag}
+      pullPolicy: IfNotPresent
+      pullSecret: {}
+      # name: docker-registry-secret
+
+ingestion:
+  shuffleDatasets: false # set true if you need the crawler to treat the datasets in random order
+  inProgressFolderName: .inprogress # Name of the sub-folder where in-progress datasets will be moved
+  rootSuccessFolder: "" # URL-Path where successfully processed files can be moved (organized by dataset name), if empty those files will be simply deleted
+  removeSucceededSourceFiles: false
+  rootFailureFolder: "" # URL-Path where files that failed to be process can be moved (organized by dataset name), if empty those files will be simply deleted
+  removeFailedSourceFiles: false
+  crawlingPeriod: "10 seconds" # duration between two crawling iterations
+  defaultRounding:
+    coordinatesPrecision: 5
+    roundingMode: RoundUp
+
+crawler:
+  replicaCount: 1
+  image:
+    repository: ${ci.docker.prefix}/parquet-cube-crawler
+    tag: ${docker.tag}
+    pullPolicy: IfNotPresent
+    pullSecret: {}
+      # name: docker-registry-secret
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+
+ingestionTests:
+  outputFolder: hdfs://big-namenode1.bigdata.cls.fr/qt/data/metoc/tests
+
+datasetsFolder: hdfs://big-namenode1.bigdata.cls.fr/qt/data/metoc/datasets
+datasets: {}
+#  define here a section for each dataset, the name of the section will correspond to the dataset internal unique identifier
+#  "dataset-1":
+#    relativeFolder: dataset-1 # Relative folder where the raw .nc files will be found, relative to file:///nc-input/ volume
+#    ingestionMode: local # Ingestion mode, it could be "local" or "spark"
+#    rounding:
+#      coordinatesPrecision: 4 # optional coordinates precision, default to 5
+#      roundingMode: RoundUp # optional coordinates rounding mode, default to RoundUp, acceptable values are: RoundUp, RoundDown, RoundCeiling, RoundFloor, RoundHalfUp, RoundHalfDown, RoundHalfEven, RoundUnnecessary
+#    excludedVariables: [] # optional list of variables to exclude
+
+log:
+  root:
+    level: INFO
+  logstash:
+    enabled: false
+    host: big-namenode1.bigdata.cls.fr
+    port: 10515
+    level: INFO
+  stdout:
+    enabled: true
+    level: INFO
+  loggers:
+    "org.apache.parquet": INFO
+
+hadoop:
+  #userName: ${docker.user.name}
+  configuration:
+    "fs.hdfs.impl": "org.apache.hadoop.hdfs.DistributedFileSystem"
+    "fs.file.impl": "org.apache.hadoop.fs.LocalFileSystem"
+    "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider"
+    "fs.s3a.endpoint": "s3.cls.fr:9443"
+    "fs.s3a.connection.ssl.enabled": true
+    "fs.s3a.path.style.access": true
+
+volumes:
+  nfsMetocVolume:
+    name: pvc-nfs-metoc # Name of the NFS volume PVC
+    subPath: qt # Root folder inside the volume to use whenever the pvc is mounted
+    subFolders:
+      ncInput: nc-input
+      locks: locks

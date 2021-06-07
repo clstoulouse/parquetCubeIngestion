@@ -1,0 +1,93 @@
+# Default values for parquet-cube-storage.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# use this key to define a docker pull secret for all pods deployed in this chart
+# imagePullSecret:
+  # name: docker-registry
+
+# use this key to define an image pull policy for all pods deployed in this chart
+# imagePullPolicy: IfNotPresent
+
+# Use this key to define a security context for pods created by this helm chart
+securityContext:
+  enabled: false
+  runAsUser: ${docker.user.id}
+  fsGroup: ${docker.group.id}
+  #userName: ${docker.user.name}
+  #groupName: ${docker.group.name}
+
+hooks:
+  createFolders:
+    image:
+      repository: ${ci.docker.prefix}/hadoop-tools
+      tag: ${docker.tag}
+      pullPolicy: IfNotPresent
+      pullSecret: {}
+      # name: docker-registry-secret
+
+dataBox:
+  enabled: true # if set to true, the component will be deployed
+  image:
+    repository: registry-s3.vlandata.cls.fr:5000/docker-cls/os/centos7/image
+    tag: latest
+    pullPolicy: IfNotPresent
+    pullSecret: {}
+    # name: docker-registry-secret
+  resources: {}
+
+ftpMetoc:
+  image:
+    repository: registry-s3.vlandata.cls.fr:5000/si-indus/docker-proftpd/image
+    tag: v0.5
+    pullPolicy: IfNotPresent
+    pullSecret: {}
+    # name: docker-registry-secret
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 100m
+    #  memory: 128Mi
+    # requests:
+    #  cpu: 100m
+    #  memory: 128Mi
+  service:
+    type: ClusterIP
+    sessionAffinity: None
+  ident: "Kubernetes Bigdata metoc Ftp server. Use only with passive mode" # Description of the FTP server
+  user:
+    name: metoc # Username to be used to login to the FTP server
+    password: metoc_ftp_password # Password to be used to login to the FTP server
+    uid: ${docker.user.id} # User id that owns the NFS volume
+    gid: ${docker.group.id} # Group id that owns the NFS volume
+  advertisedHostOrIp: bigdata-vip.vlandata.cls.fr # External hostname or ip used to expose the FTP server
+  ports:
+    control: 10121 # Main port of the FTP server (should correspond to a free external port if the server should be exposed)
+    passiveRange: # Range of port to allocate to FTP passive mode (should correspond to free external ports if the server should be exposed)
+      min: 10122
+      max: 10124
+
+hadoop:
+  #userName: ${docker.user.name}
+  configuration:
+    "fs.hdfs.impl": "org.apache.hadoop.hdfs.DistributedFileSystem"
+    "fs.file.impl": "org.apache.hadoop.fs.LocalFileSystem"
+    "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider"
+    "fs.s3a.endpoint": "s3.cls.fr:9443"
+    "fs.s3a.connection.ssl.enabled": true
+    "fs.s3a.path.style.access": true
+
+volumes:
+  nfsMetocVolume:
+    name: pvc-nfs-metoc # Name of the NFS volume PVC
+    pvname: pv-nfs-metoc # Name of the NFS volume PV
+    pvcreate: true # If set to true the PV won't be created
+    nfsServer: 2.2.2.2 # IP or hostname of the NFS server
+    path: /tomodif # NFS path to mount
+    size: 5Gi # Size of the volume
+    useSubPath: false # Indicate if a subpath is used
+    subPath: qt # Root folder inside the volume to use whenever the pvc is mounted
+    storageClassName: # Storage class name

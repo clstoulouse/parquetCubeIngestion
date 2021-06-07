@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cls.parquet-cube</groupId>
+        <artifactId>parquet-cube-docker-commons</artifactId>
+        <version>1.0.0</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>hadoop-tools</artifactId>
+    <packaging>pom</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-aws</artifactId>
+        </dependency>
+        <dependency>
+            <artifactId>joda-time</artifactId>
+            <groupId>joda-time</groupId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${plugin.docker.version}</version>
+                <configuration>
+                    <pushRegistry>${ci.docker.prefix}</pushRegistry> <!-- repository to push the images to -->
+                    <images>
+                        <image>
+                            <name>${ci.docker.prefix}/${project.artifactId}</name> <!-- full docker image name to build -->
+                            <alias>${project.artifactId}</alias> <!-- full docker image name to build -->
+                            <build>
+                                <tags> <!-- tags to apply on built docker images -->
+                                    <tag>latest</tag>
+                                    <tag>${docker.tag}</tag>
+                                </tags>
+                                <dockerFileDir>${project.basedir}/src/main/docker
+                                </dockerFileDir> <!-- location where Dockerfile and supporting files can be found -->
+                                <assembly>
+                                    <name>.</name>
+                                    <descriptor>${project.basedir}/src/main/docker/assembly.xml</descriptor>
+                                </assembly>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

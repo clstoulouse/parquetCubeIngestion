@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cls.parquet-cube</groupId>
+        <artifactId>parquet-cube-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../../parquet-cube-parent</relativePath>
+    </parent>
+
+    <artifactId>parquet-cube-docker-commons</artifactId>
+    <packaging>pom</packaging>
+    <description>Parent pom for the parquet-cube bases and utilities docker images</description>
+
+    <properties>
+        <docker.create-users.group>groupadd --gid 10646 metoc</docker.create-users.group>
+        <docker.create-users.user.dev>useradd --uid 11242 --gid 10646 metocdev</docker.create-users.user.dev>
+        <docker.users.creation><![CDATA[
+           ${docker.create-users.group} && ${docker.create-users.user.dev}
+        ]]></docker.users.creation>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-aws</artifactId>
+        </dependency>
+        <dependency>
+            <artifactId>joda-time</artifactId>
+            <groupId>joda-time</groupId>
+        </dependency>
+    </dependencies>
+
+    <modules>
+        <!-- docker images -->
+        <module>base-bigdata-java</module>
+        <module>hadoop-tools</module>
+    </modules>
+
+</project>
