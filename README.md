@@ -12,39 +12,39 @@ This project contains the source code for the NetCDF to Parquet transformation, 
 It also contains the ressources to deploy the transformation and ingestion of NetCDF files to Parquet 
  in an HDFS storage as a kubernetes deployments. Included are the the source code for building the according docker images and helm charts.
 
-#Architecture
+# Architecture
 
-#Building Parquet Cube project
+# Building Parquet Cube project
 After cloning the project in your local directory, go inside the parent directory and compile the project :
 
-````aidl
+```
 cd parquet-cube-parent
 mvn clean install
-````
+```
 
-#Building the docker images
+# Building the docker images
 The project contains 3 docker images :
 + base-bigdata-java : the base image to interact with the big data platform
 + hadoop-tools : the base image to interact with HDFS
 + parquet-cube-crawler : the image containing the transformation and ingestion code
 
 To build and push these images in your docker registry:
-```aidl
+```
 cd parquet-cube-parent
 mvn docker:build docker:push
 ```
 
-#Building the helm chart
+# Building the helm chart
 
-```aidl
+```
 cd misc/helm
 mvn deploy
 ```
 
-#Deploy using the helm chart
+# Deploy using the helm chart
 Change the values.yaml inside the deployment/dev folder to your configuration and launch:
 
-```aidl
+```
 cd deployment/dev
 ../cicd/deploy.sh upstall
 ```
