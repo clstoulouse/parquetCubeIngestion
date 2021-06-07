@@ -22,7 +22,7 @@
         <helm.chart.filename>${helm.chart.finalName}.tgz</helm.chart.filename>
         <helm.chart.local.dir>${project.build.directory}</helm.chart.local.dir>
         <helm.chart.local.path>${helm.chart.local.dir}/${helm.chart.filename}</helm.chart.local.path>
-        <helm.chart.remote.repository>http://mvnrepo.cls.fr:8081</helm.chart.remote.repository>
+        <helm.chart.remote.repository>todefine.helm.repo.host.fr</helm.chart.remote.repository>
         <helm.chart.remote.dir>nexus/repository/packages-to-deploy/parquet-cube/helm/${helm.chart.version}</helm.chart.remote.dir>
         <helm.chart.remote.url>${helm.chart.remote.repository}/${helm.chart.remote.dir}/${helm.chart.filename}</helm.chart.remote.url>
 
@@ -35,7 +35,7 @@
     <distributionManagement>
         <repository>
             <id>helm-repository</id>
-            <url>http://mvnrepo.cls.fr:8081/nexus/repository/packages-to-deploy/parquet-cube/helm/</url>
+            <url>http://todefine.helm.repo.host.fr/nexus/repository/packages-to-deploy/parquet-cube/helm/</url>
         </repository>
     </distributionManagement>
 

@@ -55,8 +55,8 @@ and execute the following command in a git bash `mvn clean install` (or
 run it on this folder to create the packages for all the sub-modules).
 
 If you execute `mvn deploy`, the generated `.tar.gz` files will be
-pushed to CLS nexus raw repository under:
-`http://mvnrepo.cls.fr:8081/nexus/repository/packages-to-deploy/parquet-cube/helm/`.
+pushed to nexus raw repository under:
+`http://todefine.host.fr/nexus/repository/packages-to-deploy/parquet-cube/helm/`.
 
 The target url where the archives are pushed is configurable in
 [pom.xml](pom.xml).

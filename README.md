@@ -47,5 +47,5 @@ cd deployment/dev
 ../cicd/deploy.sh upstall
 ```
 
-#Set up local environment
-
+#Set up environment
+replace all 'todefine' values with your local configurations

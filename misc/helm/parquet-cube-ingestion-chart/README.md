@@ -108,7 +108,7 @@ for each dataset, to parametrize the ingestion.
 #### Example
 
 ```yaml
-datasetsFolder: hdfs://big-namenode1.bigdata.cls.fr/qt/data/metoc/datasets
+datasetsFolder: hdfs://todefine.hdfs.host.fr/qt/data/metoc/datasets
 datasets:
   "dataset-1":
     relativeFolder: my-collection-1/dataset1

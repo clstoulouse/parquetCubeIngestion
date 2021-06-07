@@ -1,6 +1,6 @@
 set-namespace "metocdev"
 
-PACKAGES_BASE_URL="http://mvnrepo.cls.fr:8081/nexus/repository/packages-to-deploy/parquet-cube/helm"
+PACKAGES_BASE_URL="http://todefine.helmrepo.host.fr/nexus/repository/packages-to-deploy/parquet-cube/helm"
 PACKAGES_VERSION="1.0.0"
 
 # Packages

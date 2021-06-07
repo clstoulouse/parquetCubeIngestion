@@ -59,9 +59,9 @@ crawler:
     #  memory: 128Mi
 
 ingestionTests:
-  outputFolder: hdfs://big-namenode1.bigdata.cls.fr/qt/data/metoc/tests
+  outputFolder: hdfs://todefine.hdfs.host.fr/qt/data/metoc/tests
 
-datasetsFolder: hdfs://big-namenode1.bigdata.cls.fr/qt/data/metoc/datasets
+datasetsFolder: hdfs://todefine.hdfs.host.fr/qt/data/metoc/datasets
 datasets: {}
 #  define here a section for each dataset, the name of the section will correspond to the dataset internal unique identifier
 #  "dataset-1":
@@ -77,7 +77,7 @@ log:
     level: INFO
   logstash:
     enabled: false
-    host: big-namenode1.bigdata.cls.fr
+    host: todefine.hdfs.host.fr
     port: 10515
     level: INFO
   stdout:
@@ -92,7 +92,7 @@ hadoop:
     "fs.hdfs.impl": "org.apache.hadoop.hdfs.DistributedFileSystem"
     "fs.file.impl": "org.apache.hadoop.fs.LocalFileSystem"
     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider"
-    "fs.s3a.endpoint": "s3.cls.fr:9443"
+    "fs.s3a.endpoint": todefine
     "fs.s3a.connection.ssl.enabled": true
     "fs.s3a.path.style.access": true
 

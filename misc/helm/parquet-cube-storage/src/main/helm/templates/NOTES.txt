@@ -16,8 +16,7 @@ You should create a Rancher L4 load balancer for it if you want to access the ft
 
 Here is the procedure:
 
-+ Open rancher UI in a browser and log in with your credentials:
-  http://big-namenode1.vlandata.cls.fr:9080/
++ Open rancher UI in a browser and log in with your credentials
 + Navigate in the UI to `Kubernetes (in the top menu) | Infrastructure Stacks | kubernetes-ingress-lbs | Add Service (drop down list) | Add Load Balancer`
 + Fill in the from as following:
   + `Scale`: `Always run one instance of this container on every host`

@@ -31,17 +31,16 @@ ftpMetoc:
       name: docker-registry-si-indus
   user:
     name: metoc
-    password: metoc_ftp_password
+    password: todefine_ftp_password
     uid: *uid
-    gid: *gid
-  advertisedHostOrIp: big-namenode3.vlandata.cls.fr
+  advertisedHostOrIp: todefine.hdfs.host.fr
   ports:
     control: 10421
     passiveRange:
       min: 10422
       max: 10424
 
-datasetsFolder: hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/datasets
+datasetsFolder: hdfs://todefine.hdfs.host.fr/dev/data/metoc/env-1/datasets
 datasets:
   "dataset-alti8-nrt-global-msla-uv":
     relativeFolder: Altimetry_Sea_Water_Velocity/dataset-alti8-nrt-global-msla-uv
@@ -88,9 +87,9 @@ datasets:
 
 ingestion:
   shuffleDatasets: false
-  rootSuccessFolder: hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/raw/success
+  rootSuccessFolder: hdfs://todefine.hdfs.host.fr/dev/data/metoc/env-1/raw/success
   removeSucceededSourceFiles: true
-  rootFailureFolder: hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/raw/failure
+  rootFailureFolder: hdfs://todefine.hdfs.host.fr/dev/data/metoc/env-1/raw/failure
   removeFailedSourceFiles: true
   crawlingPeriod: "10 seconds"
   default-rounding:
@@ -101,17 +100,17 @@ crawler:
   replicaCount: 1
 
 ingestionTests:
-  outputFolder: "hdfs://big-namenode1.bigdata.cls.fr/dev/data/metoc/env-1/tests"
+  outputFolder: "hdfs://todefine.hdfs.host.fr/dev/data/metoc/env-1/tests"
 
 hadoop:
   userName: *username
   configuration:
     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider"
-    "fs.s3a.endpoint": "s3.cls.fr:9443"
+    "fs.s3a.endpoint": todefine
     "fs.s3a.connection.ssl.enabled": true
     "fs.s3a.path.style.access": true
-    "fs.s3a.access.key": "AXN7U10PDVV6UTDPPXQX"
-    "fs.s3a.secret.key": "Iu2cio=U2NGMHJK5a9oDxEpkzjXPo+CnV7KawnrU"
+    "fs.s3a.access.key": todefine
+    "fs.s3a.secret.key": todefine
 
 volumes:
   nfsMetocVolume:

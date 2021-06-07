@@ -63,7 +63,7 @@ securityContext:
 | `log.stdout.level`     | Level of logs to apply on the standard output logs appender                                                                               | `INFO`                         |
 | `log.logstash.enabled` | If `true` the logstash logs appender will be activated                                                                                    | `false`                        |
 | `log.logstash.level`   | Level of logs to apply on the logstash logs appender                                                                                      | `INFO`                         |
-| `log.logstash.host`    | Hostname of the logstash socket to send the logs to                                                                                       | `big-namenode1.bigdata.cls.fr` |
+| `log.logstash.host`    | Hostname of the logstash socket to send the logs to                                                                                       | `todefine.hdfs.host.fr` |
 | `log.logstash.port`    | Port  of the logstash socket to send the logs to                                                                                          | `10515`                        |
 | `log.loggers`          | Section of the configuration where you can restrict the logging level by package. In key (FQ package name), and value (log level) format. |                                |
 
@@ -75,7 +75,7 @@ log:
     level: INFO
   logstash:
     enabled: false
-    host: big-namenode1.bigdata.cls.fr
+    host: todefine.hdfs.host.fr
     port: 10515
     level: INFO
   stdout:
@@ -98,13 +98,13 @@ dataset.
 
 | key                                    | Description                                                                                                                                                                                | Default value                                                |
 |----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| `datasetsFolder`                       | Path in the distributed storage under which the parquet data and the indexes of the datasets can be found                                                                                  | `hdfs://big-namenode1.bigdata.cls.fr/qt/data/metoc/datasets` |
+| `datasetsFolder`                       | Path in the distributed storage under which the parquet data and the indexes of the datasets can be found                                                                                  | `hdfs://todefine.hdfs.host.fr/qt/data/metoc/datasets` |
 | `datasets.(dataset-id).relativeFolder` | Relative path to append to `datasetsFolder` in order to retrieve the full absolute data/index path of the datasets (the folder under which we can find the `data` and `index` directories) |                                                              |
 
 ### Example
 
 ```yaml
-datasetsFolder: hdfs://big-namenode1.bigdata.cls.fr/qt/data/metoc/datasets
+datasetsFolder: hdfs://todefine.hdfs.host.fr/qt/data/metoc/datasets
 datasets:
   "dataset-1":
     relativeFolder: my-collection-1/dataset1
@@ -155,7 +155,7 @@ hadoop:
     "fs.hdfs.impl": "org.apache.hadoop.hdfs.DistributedFileSystem"
     "fs.file.impl": "org.apache.hadoop.fs.LocalFileSystem"
     "fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.BasicAWSCredentialsProvider"
-    "fs.s3a.endpoint": "s3.cls.fr:9443"
+    "fs.s3a.endpoint": todefine
     "fs.s3a.connection.ssl.enabled": true
     "fs.s3a.path.style.access": true
 ```

@@ -36,7 +36,7 @@
         <git.properties.location>${git.properties.directory}/${git.properties.filename}</git.properties.location>
 
         <!-- docker images -->
-        <ci.docker.registry>registry-s3.vlandata.cls.fr:5000</ci.docker.registry>
+        <ci.docker.registry>todefine.registry-ext.fr</ci.docker.registry>
         <ci.docker.prefix>${ci.docker.registry}/bigdata/bigdata-metoc/parquet-cube</ci.docker.prefix>
         <docker.supporting-files.dir>files</docker.supporting-files.dir>
 
