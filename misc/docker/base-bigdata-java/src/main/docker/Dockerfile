@@ -22,7 +22,7 @@ ENV LANG en_US.UTF-8
 
 CMD ["/bin/bash"]
 
-##########
+###########
 
 ENV DOCKER_ENTRYPOINT_SCRIPTS="/docker-entry-point.d"
 
@@ -40,12 +40,12 @@ USER bigdata
 
 ENTRYPOINT ["/docker-entry-point.sh"]
 
-##########
+###########
 
 # This is introduced as a workaround for : https://github.com/fabric8io/docker-maven-plugin/issues/894
 ENV DOCKER_JAVA_HOME /docker-java-home
 
-ENV JRE_DOWNLOAD_URL "http://mirror.centos.org/centos/7/updates/x86_64/Packages/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6.x86_64.rpm"
+ENV JRE_DOWNLOAD_URL "http://mirror.centos.org/centos/7/updates/x86_64/Packages/java-1.8.0-openjdk-1.8.0.292.b10-1.el7_9.x86_64.rpm"
 ENV JAVA_HOME ${DOCKER_JAVA_HOME}
 
 USER root
@@ -58,6 +58,8 @@ RUN curl -v -s -L ${JRE_DOWNLOAD_URL} > /tmp/jre.rpm && \
     ln -svT $(readlink -f /usr/bin/java | sed "s:/bin/java::") "${DOCKER_JAVA_HOME}"
 
 USER bigdata
+
+###########
 
 ENV JAVA_APP_DIR=/opt/bigdata
 
@@ -78,7 +80,7 @@ RUN mkdir -p ${JAVA_APP_DIR} ${JAVA_LIB_DIR} ${JAVA_BIN_DIR} ${JAVA_CONF_DIR} ${
     chown -R bigdata:bigdata ${JAVA_APP_DIR} && \
     chmod a+rwx ${DEV_DIR}
 
-COPY --chown=bigdata:bigdata files/ ${JAVA_APP_DIR}
+COPY --chown=bigdata:bigdata files-bigdata-java-app/ ${JAVA_APP_DIR}
 
 RUN find "${JAVA_APP_DIR}" -type f -name '*.sh' -print -exec chmod +rx {} \;
 
@@ -86,6 +88,8 @@ USER bigdata
 
 WORKDIR ${JAVA_APP_DIR}
 CMD ["/opt/bigdata/bin/start-java-app.sh"]
+
+##########
 
 USER root
 

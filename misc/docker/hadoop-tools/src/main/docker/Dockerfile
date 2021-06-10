@@ -22,7 +22,7 @@ ENV LANG en_US.UTF-8
 
 CMD ["/bin/bash"]
 
-##########
+###########
 
 ENV DOCKER_ENTRYPOINT_SCRIPTS="/docker-entry-point.d"
 
@@ -40,12 +40,12 @@ USER bigdata
 
 ENTRYPOINT ["/docker-entry-point.sh"]
 
-##########
+############
 
 # This is introduced as a workaround for : https://github.com/fabric8io/docker-maven-plugin/issues/894
 ENV DOCKER_JAVA_HOME /docker-java-home
 
-ENV JRE_DOWNLOAD_URL "http://mirror.centos.org/centos/7/updates/x86_64/Packages/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6.x86_64.rpm"
+ENV JRE_DOWNLOAD_URL "http://mirror.centos.org/centos/7/updates/x86_64/Packages/java-1.8.0-openjdk-1.8.0.292.b10-1.el7_9.x86_64.rpm"
 ENV JAVA_HOME ${DOCKER_JAVA_HOME}
 
 USER root
@@ -56,6 +56,8 @@ RUN curl -v -s -L ${JRE_DOWNLOAD_URL} > /tmp/jre.rpm && \
     rm -rf /var/cache/yum && \
     find /tmp /var/tmp /run /var/log -mindepth 1 -delete -print && \
     ln -svT $(readlink -f /usr/bin/java | sed "s:/bin/java::") "${DOCKER_JAVA_HOME}"
+
+############
 
 ENV HADOOP_DOWNLOAD_URL="http://archive.apache.org/dist/hadoop/common/hadoop-2.6.0/hadoop-2.6.0.tar.gz" \
     DOCKER_HADOOP_HOME="/opt/hadoop"
@@ -74,6 +76,8 @@ COPY hadoop-libs/* ${DOCKER_HADOOP_HOME}/share/hadoop/common/lib/
 COPY bin/* ${DOCKER_HADOOP_HOME}/bin/
 
 RUN chmod +x ${DOCKER_HADOOP_HOME}/bin/*
+
+##########
 
 RUN ${docker.users.creation}
 
